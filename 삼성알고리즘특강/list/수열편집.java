@@ -1,4 +1,4 @@
-package 삼성알고리즘특강;
+package 삼성알고리즘특강.list;
 
 import java.io.*;
 import java.io.InputStreamReader;
