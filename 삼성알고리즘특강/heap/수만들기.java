@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
+/*
+처음에는 더하는 거만 고려하여 거스름돈 문제와 비슷하게 느껴짐 -> DP로 생각함 -> 하지만 곱하는 것도 고려해야함
+우선순위 큐 생각
+하지만 문제를 잘못읽어서 D=1인 경우를 고려하지 않음
+ */
 
 public class 수만들기 { // 거스름돈 문제와 비슷하게 느껴짐 -> DP, 하지만 곱하기 연산으로 인해 DP보다는 우선순위 큐
     static class Node implements Comparable<Node>{
