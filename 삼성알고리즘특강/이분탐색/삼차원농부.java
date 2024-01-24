@@ -5,6 +5,12 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+/**
+ * 개인적으로 너무 어려워서 다시 풀어볼 문제
+ * 이분탐색으로 풀어야하는지 전혀 감을 못잡은 문제
+ * 특히 이분 탐색 반복문 돌고 양옆의 요소 한 번 더 확인해줘야 하는 부분이 이해하기 조금 어려웠음
+ */
+
 public class 삼차원농부 {
 
     public static long MIN_VALUE, COUNT;
