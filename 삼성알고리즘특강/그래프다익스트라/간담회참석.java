@@ -20,7 +20,6 @@ public class 간담회참석 {
 
 
  */
-    static boolean[] visited;
     static int totalNum;
     static int roadNum;
 
@@ -105,12 +104,9 @@ public class 간담회참석 {
     public static void dijkstra(List<Node>[] nodes, int[] distance) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
         pq.add(new Node(meetRoom, 0)); // 역으로 도착인 회의실 부터 각 노드별로 최단 거리 구하기
-        visited = new boolean[totalNum + 1];
         distance[meetRoom] = 0;
         while (!pq.isEmpty()) {
             Node now = pq.poll();
-            if (visited[now.from]) continue;
-            visited[now.from] = true; // pop할 때 방문 처리
             for (Node next : nodes[now.from]) {
                 if (distance[next.from] > next.time + distance[now.from]) {
                     distance[next.from] = next.time + distance[now.from];
