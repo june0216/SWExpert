@@ -80,12 +80,9 @@ public class 가장짧은길청소하기 {
 
     public static void dijkstra() {
         PriorityQueue<Node> pq = new PriorityQueue<>();
-        boolean[] visited = new boolean[buildingNum + 1];
         pq.add(new Node(1,0));
         while (!pq.isEmpty()) {
             Node now = pq.poll();
-            if(visited[now.num]) continue;
-            visited[now.num] = true; // 꺼낼 때 방문 처리
             for(Node next : nodes[now.num]){
                 if(minDis[next.num] >= minDis[now.num]+next.weight){
                     minDis[next.num] = minDis[now.num]+next.weight; //거리 업데이트
