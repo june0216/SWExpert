@@ -22,12 +22,12 @@ public class k번째접미어 {
             sb.append("#").append(testCase).append(" ");
             int index = Integer.parseInt(br.readLine());
             String word = br.readLine();
-            List<String> LCP = new ArrayList<>();
+            List<String> suffixArray = new ArrayList<>();
             for(int i = 0; i < word.length(); i++){
-                LCP.add(word.substring(i, word.length()));
+                suffixArray.add(word.substring(i, word.length()));
             }
-            Collections.sort(LCP);
-            sb.append(LCP.get(index-1)).append("\n");
+            Collections.sort(suffixArray);
+            sb.append(suffixArray.get(index-1)).append("\n");
         }
         System.out.println(sb);
     }
