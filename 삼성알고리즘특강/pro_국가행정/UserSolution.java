@@ -2,13 +2,16 @@ package 삼성알고리즘특강.pro_국가행정;
 
 import java.util.PriorityQueue;
 
+/**
+ * 정말 정말 오래 걸렸던 문제
+ * 노드와 노드사이의 거리를 각각 관리해주어야 하기 때문에 살짝 헷갈렸다.
+ */
 class UserSolution
 {
 
     class Node{
         int id;
         int peopleNum;
-        int gu;
 
         public Node(int id, int peopleNum) {
             this.id = id;
@@ -20,9 +23,13 @@ class UserSolution
         public int roadNum;
         public Node from;
         public Node to;
+        public int roadCnt;
         public int time;
-        public Road(Node from, Node to, int roadNum, int time){
+        public Road(Node from, Node to, int roadNum, int roadCnt, int time){
+            this.from = from;
+            this.to = to;
             this.roadNum = roadNum;
+            this.roadCnt = roadCnt;
             this.time = time;
         }
 
@@ -31,7 +38,7 @@ class UserSolution
             if(this.time == road.time){
                 return this.roadNum - road.roadNum;
             }
-            return this.time - road.time;
+            return road.time - this.time;
         }
 
 
@@ -42,11 +49,8 @@ class UserSolution
     public PriorityQueue<Road> roadPq;
 
     public int[] tree;
+    public int[] population;
 
-
-    public int getMoveTime(Road road){
-        return (road.from.peopleNum + road.to.peopleNum)/road.roadNum;
-    }
 
     /**
      * N개 도시의 고유번호는 왼쪽에서부터 0 ~ (N – 1)이며, 그 순서대로 도시의 인구가 주어진다.
@@ -55,43 +59,52 @@ class UserSolution
      */
     void init(int N, int mPopulation[])
     {
+        population = mPopulation;
         nodeList = new Node[N];
         roadPq = new PriorityQueue<>();
-        for(int i = 0 ; i < N; i++){
-            nodeList[i] = new Node(i, mPopulation[i]);
-            if(i > 0){
-                roadPq.add(new Road(nodeList[i-1], nodeList[i], 1, nodeList[i-1].peopleNum + nodeList[i].peopleNum));
-            }
-        }
         tree = new int[N*4];
-        makeTree(1, 0, N-2);
+
+        for(int i = 0 ; i < N-1; i++){
+            if(i == 0) nodeList[i] = new Node(i, 0);
+            int time = mPopulation[i]+ mPopulation[i+1];
+            nodeList[i+1] = new Node(i+1, time);
+            roadPq.add(new Road(nodeList[i], nodeList[i+1], i+1, 1,time));
+
+
+
+        }
+
+
+        makeTree(1, 0, N-1);
 
     }
-    int makeTree(int node, int start, int end){
+    void makeTree(int node, int start, int end){
         if(start == end){
-            return tree[node] = 1;
+            tree[node] = nodeList[start].peopleNum;
+            return;
         }
-        else{
+
             int mid = (start+end)/2;
-            makeTree(node*2, 0, mid);
+            makeTree(node*2, start, mid);
             makeTree(node*2+1, mid+1, end);
-            return tree[node] = tree[node*2] + tree[node*2+1];
-        }
+            tree[node] = tree[node*2] + tree[node*2+1];
+
     }
 
-    void update(int node, int start, int end, Road road){
-            if(start > road.to.id || end < road.to.id){
+    void update(int node, int start, int end, int fromId, int toId, int value){
+            if(start > toId || end < toId){
                 return;
             }
-            if(road.to.id == start && road.to.id == end){
-                tree[node] = road.time;
+            if(start == end){
+                tree[node] = value;
+                return;
             }
-            else{
+
                 int mid = (start+end)/2;
-                update(node*2, start, mid, road);
-                update(node*2+1, mid+1, end, road);
+                update(node*2, start, mid, fromId, toId, value);
+                update(node*2+1, mid+1, end, fromId, toId, value);
                 tree[node] = tree[node*2] + tree[node*2+1];
-            }
+
     }
 
 
@@ -102,17 +115,19 @@ class UserSolution
      */
     int expand(int M)
     {
-        Road road = roadPq.poll();
-        while(M-- >1){
-            if(road.time == roadPq.peek().time){
-                road = roadPq.poll();
+        int result = 0;
+        while(M-- > 0){
+            if(!roadPq.isEmpty()){
+                Road road = roadPq.poll();
+                road.roadCnt++;
+                result= ( population[road.from.id]+ population[road.to.id])/road.roadCnt;
+                road.time = result;
+                roadPq.add(road);
+                update(1, 0, nodeList.length-1, road.from.id, road.to.id, result);
             }
-            road.roadNum +=1;
-            road.time = getMoveTime(road);
-            update(1, 0, nodeList.length-2, road);
         }
 
-        return road.time;
+        return result;
     }
 
 
@@ -124,8 +139,9 @@ class UserSolution
             return 0;
         }
         int mid = (start + end) /2;
-        return getSum(node*2, start, mid, queryStart, queryEnd)+
-        getSum(node*2+1, mid+1, end, queryStart, queryEnd);
+        int left = getSum(node*2, start, mid, queryStart, queryEnd);
+        int right = getSum(node*2+1, mid+1, end, queryStart, queryEnd);
+        return left + right;
 
     }
 
@@ -137,7 +153,13 @@ class UserSolution
      */
     int calculate(int mFrom, int mTo)
     {
-        return getSum(1, 0, tree.length-1, mFrom+1, mTo);
+        if(mFrom> mTo){
+            int temp = mFrom;
+            mFrom = mTo;
+            mTo = temp;
+        }
+        int result = getSum(1, 0, nodeList.length-1, mFrom+1, mTo);
+        return result;
     }
 
     /**
@@ -156,18 +178,20 @@ class UserSolution
      */
     int divide(int mFrom, int mTo, int K)
     {
-        int start = 0;
+        int start = 1;
         int end = Integer.MAX_VALUE;
         while(start < end){
             int totalNum = 0;
 
-            int mid = start + ((end-start)/2);
+            int mid = ((end+start)/2);
             int i = mFrom;
             while(i<=mTo && totalNum <= K){
                 int peopleNum = 0;
+
                 int j = i;
-                while(j <= mTo && (nodeList[j].peopleNum + totalNum) <= mid){
-                    peopleNum += nodeList[j++].peopleNum;
+
+                while(j <= mTo && peopleNum + population[j] <= mid){
+                    peopleNum += population[j++];
                 }
                 totalNum++;
                 i = j; // 다음 선거구
