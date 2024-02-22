@@ -1,6 +1,6 @@
 package 삼성알고리즘특강.pro_조직개편;
 
-import com.sun.source.tree.Tree;
+
 import java.util.*;
 
 class UserSolution {
@@ -44,7 +44,7 @@ class UserSolution {
      */
     public int add(int mId, int mNum, int mParent) {
         TreeNode parent = hashMap.get(mParent);
-        if(parent.childNodList.size() == 2) return -1;
+        if(parent.childNodList.size() >= 2) return -1;
         TreeNode newTreeNode = new TreeNode(mId, parent, mNum);
         parent.childNodList.add(newTreeNode);
         hashMap.put(mId, newTreeNode);
@@ -67,41 +67,43 @@ class UserSolution {
     public int remove(int mId) {
         if(!hashMap.containsKey(mId)) return -1;
         TreeNode removedNode = hashMap.get(mId);
-        int returnValue = removedNode.totalSum;
-        removedNode.parent.childNodList.remove(removedNode);
         removeChild(removedNode);
+        int returnValue = removedNode.totalSum;
+
+        removedNode.parent.childNodList.remove(removedNode);
+
         updateSum(removedNode.parent, -returnValue);
-/*        removedNode.childNodList.clear();
-        hashMap.remove(mId);*/
+
         return returnValue;
     }
 
     public int divide(TreeNode node){
-        if(node.peopleNum > groupLimit || totalGroup > targetGroupNum ){
+        if( totalGroup > targetGroupNum || node.peopleNum > groupLimit ){
             totalGroup = Integer.MAX_VALUE;
             return 0;
         }
+        int nodeNum = node.peopleNum;
         int rightNum = 0;
         int leftNum = 0;
         // case0) 각각 둘다 target보다 큰 경우
 
-        if(node.childNodList.size() ==1) leftNum = divide(node.childNodList.get(0));
-        if(node.childNodList.size() ==2) rightNum = divide(node.childNodList.get(1));
+        if(node.childNodList.size() >=1) leftNum = divide(node.childNodList.get(0));
+        if(node.childNodList.size() >=2) rightNum = divide(node.childNodList.get(1));
         if(totalGroup <= targetGroupNum){
-            if(node.peopleNum + leftNum > groupLimit){
+            if(nodeNum+ leftNum > groupLimit){
                 totalGroup++; // 하나의 노드만 그룹이 된다.
                 leftNum = 0; // 왼쪽은 포함될 수 없으니 0으로
             }
-            if(node.peopleNum + rightNum > groupLimit){
+            if(nodeNum + rightNum > groupLimit){
                 totalGroup++; // 하나의 노드만 그룹이 된다.
                 rightNum = 0; // 왼쪽은 포함될 수 없으니 0으로
             }
-            if(node.peopleNum + rightNum + leftNum > groupLimit){
+            if(nodeNum + rightNum + leftNum > groupLimit){
                 totalGroup++;
                 if(leftNum > rightNum) leftNum = 0;
                 else rightNum = 0;
             }
-            return node.peopleNum + leftNum + rightNum;
+            return nodeNum + leftNum + rightNum;
 
 
         }
@@ -116,6 +118,7 @@ class UserSolution {
     public int reorganize(int M, int K) {
         targetGroupNum = M;
         groupLimit = K;
+        totalGroup = 1;
         TreeNode root = hashMap.get(rootIdx);
         divide(root);
         if(totalGroup <= targetGroupNum) return 1; // 가능한 경우
