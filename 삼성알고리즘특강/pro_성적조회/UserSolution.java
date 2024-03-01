@@ -1,4 +1,4 @@
-package 삼성알고리즘특강.성적조회;
+package 삼성알고리즘특강.pro_성적조회;
 
 import java.util.*;
 
